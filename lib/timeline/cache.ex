@@ -43,6 +43,6 @@ defmodule Timeline.Cache do
   end
 
   def terminate(_reason, _state) do
-    :ok = :dets.close(@dets_file)
+    :dets.close(@dets_file)
     :ok
   end
