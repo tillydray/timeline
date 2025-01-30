@@ -9,6 +9,7 @@ defmodule Timeline.Cache do
   def start_link(_opts) do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
+end
 
   def init(:ok) do
     :ets.new(@table, [:named_table, :public, :set, {:read_concurrency, true}])
