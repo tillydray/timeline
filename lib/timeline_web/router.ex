@@ -10,7 +10,7 @@ defmodule TimelineWeb.Router do
     plug :put_secure_browser_headers
   end
 
-  scope "/", TimelineWeb do
+  scope "/", TimelineWeb, as: :timeline do
     pipe_through :browser
 
     live "/", StockLive, :index
