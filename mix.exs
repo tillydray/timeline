@@ -27,7 +27,8 @@ defmodule Timeline.MixProject do
       {:ecto_sql, "~> 3.9"},
       {:postgrex, ">= 0.0.0"},
       {:hackney, "~> 1.17"},
-      {:jason, "~> 1.2"}
+      {:jason, "~> 1.2"},
+      {:gettext, "~> 0.18"}
     ]
   end
 end
