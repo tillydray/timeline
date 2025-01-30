@@ -1,4 +1,5 @@
 defmodule Timeline.Cache do
+  require Logger
   use GenServer
 
   @dets_file 'timeline_cache'
