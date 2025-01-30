@@ -9,7 +9,11 @@ config :timeline, Timeline.Repo,
 
 config :timeline, TimelineWeb.Endpoint,
   url: [host: "localhost"],
-  secret_key_base: "a_very_secret_key",
+  http: [ip: {127, 0, 0, 1}, port: 4000],
+  debug_errors: true,
+  code_reloader: true,
+  check_origin: false,
+  secret_key_base: "3JJU3po+wyNF9v7Xe1BALDUz/W5hdFN6RlOTrwnXRl7LAnAzulxcJGuBzD9vKqsR",
   render_errors: [view: TimelineWeb.ErrorView, accepts: ~w(html json)],
   pubsub_server: Timeline.PubSub,
   live_view: [signing_salt: "another_secret_salt"]

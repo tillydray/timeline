@@ -28,7 +28,8 @@ defmodule Timeline.MixProject do
       {:postgrex, ">= 0.0.0"},
       {:hackney, "~> 1.17"},
       {:jason, "~> 1.2"},
-      {:gettext, "~> 0.18"}
+      {:gettext, "~> 0.18"},
+      {:plug_cowboy, "~> 2.5"}
     ]
   end
 end

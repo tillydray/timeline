@@ -11,7 +11,21 @@ defmodule Timeline.TwelveData do
 
   def fetch_stocks(api_key) do
     endpoint = "/stocks?apikey=#{api_key}"
-    get_and_cache(endpoint)
+
+    case get_and_cache(endpoint) do
+      {:error, _reason} ->
+        []
+
+      raw_body when is_binary(raw_body) ->
+        # raw_body is still JSON, so parse it
+        case Jason.decode(raw_body) do
+          {:ok, %{"data" => data}} ->
+            data
+
+          _ ->
+            []
+        end
+    end
   end
 
   def fetch_time_series(symbol, api_key, interval \\ @default_interval) do
@@ -66,7 +80,7 @@ defmodule Timeline.TwelveData do
 
   defp log_request(endpoint) do
     # logs the timestamp of request to DB table
-    %RequestLog{endpoint: endpoint, inserted_at: DateTime.utc_now()}
+    %RequestLog{endpoint: endpoint, inserted_at: DateTime.truncate(DateTime.utc_now(), :second)}
     |> Repo.insert()
 
     :ok

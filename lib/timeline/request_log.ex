@@ -4,7 +4,7 @@ defmodule Timeline.RequestLog do
 
   schema "requests" do
     field(:endpoint, :string)
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 
   def changeset(struct, params \\ %{}) do
