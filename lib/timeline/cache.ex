@@ -41,7 +41,7 @@ defmodule Timeline.Cache do
     :dets.insert(@dets_file, {key, {value, :erlang.system_time(:millisecond)}})
     :ok
   end
-  def terminate(_reason, _state) do
+  def terminate(_reason, _state) when is_atom(_reason) and is_map(_state) do
     :dets.close(@dets_file)
     :ok
   end
