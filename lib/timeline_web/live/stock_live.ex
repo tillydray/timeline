@@ -9,7 +9,8 @@ defmodule TimelineWeb.StockLive do
   end
 
   @impl true
-  def handle_params(%{"api_key" => api_key, "symbol" => symbol}, _uri, socket) do
+  def handle_params(%{"api_key" => api_key} = params, _uri, socket) do
+    symbol = Map.get(params, "symbol", "AAPL")  # or any fallback you want
     stocks = TwelveData.fetch_stocks(api_key)
     time_series = TwelveData.fetch_time_series(symbol, api_key)
 
