@@ -41,6 +41,7 @@ defmodule Timeline.Cache do
     :dets.insert(@dets_file, {key, {value, :erlang.system_time(:millisecond)}})
     :ok
   end
+  end
   def terminate(_reason, _state) do
     :ok = :dets.close(@dets_file)
     :dets.close(@dets_file)
