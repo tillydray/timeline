@@ -4,7 +4,8 @@ defmodule Timeline.Application do
   def start(_type, _args) do
     children = [
       Timeline.Repo,
-      {Task, fn -> Timeline.Cache.start_link() end}
+      {Task, fn -> Timeline.Cache.start_link() end},
+      TimelineWeb.Endpoint
       # If you have a Phoenix app, it goes here too,
       # e.g. TimelineWeb.Endpoint
     ]
