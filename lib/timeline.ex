@@ -12,7 +12,9 @@ defmodule Timeline do
       :world
 
   """
-  def hello do
-    :world
+  def list_stocks(api_key, page \\ 1, per_page \\ 10) do
+    stocks = Timeline.TwelveData.fetch_stocks(api_key)
+    Enum.chunk_every(stocks, per_page)
+    |> Enum.at(page - 1, [])
   end
 end

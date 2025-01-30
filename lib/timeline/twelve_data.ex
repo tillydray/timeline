@@ -65,7 +65,7 @@ defmodule Timeline.TwelveData do
 
   defp log_request(endpoint) do
     # logs the timestamp of request to DB table
-    %RequestLog{endpoint: endpoint}
+    %RequestLog{endpoint: endpoint, inserted_at: DateTime.utc_now()}
     |> Repo.insert()
     :ok
   end
