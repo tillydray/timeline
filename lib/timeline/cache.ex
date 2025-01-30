@@ -21,12 +21,13 @@ defmodule Timeline.Cache do
 
     case :ets.lookup(@table, key) do
       [{^key, {value, timestamp}}] when current_time - timestamp < @expiration_time ->
+        Logger.info("Returning from ETS for #{inspect(key)}")
         value
 
       _ ->
         case :dets.lookup(@dets_file, key) do
           [{^key, {value, timestamp}}] when current_time - timestamp < @expiration_time ->
-            # Reinsert en ETS para acceso rápido
+            Logger.info("Returning from DETS for #{inspect(key)}")
             :ets.insert(@table, {key, {value, timestamp}})
             value
 
