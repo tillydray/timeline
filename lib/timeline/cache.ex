@@ -1,14 +1,16 @@
 defmodule Timeline.Cache do
-  @moduledoc """
-  Enhanced in-memory cache using ETS with expiration.
-  """
+  use GenServer
 
   @table __MODULE__
   @expiration_time :timer.hours(24)
 
-  def start_link do
-    :ets.new(@table, [:set, :public, :named_table, {:read_concurrency, true}])
-    {:ok, "Cache started"}
+  def start_link(_opts) do
+    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
+  end
+
+  def init(:ok) do
+    :ets.new(@table, [:named_table, :public, :set, {:read_concurrency, true}])
+    {:ok, %{}}
   end
 
   def get(key) do
