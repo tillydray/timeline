@@ -26,7 +26,8 @@ defmodule Timeline.MixProject do
       {:phoenix_live_view, "~> 0.16.0"},
       {:ecto_sql, "~> 3.9"},
       {:postgrex, ">= 0.0.0"},
-      {:hackney, "~> 1.17"}
+      {:hackney, "~> 1.17"},
+      {:jason, "~> 1.2"}
     ]
   end
 end

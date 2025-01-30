@@ -15,3 +15,5 @@ config :timeline, TimelineWeb.Endpoint,
   live_view: [signing_salt: "another_secret_salt"]
 
 config :timeline, ecto_repos: [Timeline.Repo]
+
+config :phoenix, :json_library, Jason
