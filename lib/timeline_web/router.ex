@@ -1,5 +1,6 @@
 defmodule TimelineWeb.Router do
   use Phoenix.Router
+  import Phoenix.LiveView.Router
 
   pipeline :browser do
     plug :accepts, ["html"]
