@@ -1,5 +1,5 @@
 defmodule TimelineWeb.Router do
-  use Phoenix.Router
+  use TimelineWeb, :router
   import Phoenix.LiveView.Router
 
   pipeline :browser do
