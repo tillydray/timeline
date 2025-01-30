@@ -6,8 +6,6 @@ defmodule Timeline.Application do
       Timeline.Repo,
       {Task, fn -> Timeline.Cache.start_link() end},
       TimelineWeb.Endpoint
-      # If you have a Phoenix app, it goes here too,
-      # e.g. TimelineWeb.Endpoint
     ]
 
     opts = [strategy: :one_for_one, name: Timeline.Supervisor]

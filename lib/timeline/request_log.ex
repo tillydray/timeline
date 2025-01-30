@@ -3,7 +3,7 @@ defmodule Timeline.RequestLog do
   import Ecto.Changeset
 
   schema "requests" do
-    field :endpoint, :string
+    field(:endpoint, :string)
     timestamps()
   end
 

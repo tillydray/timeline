@@ -10,8 +10,9 @@ defmodule TimelineWeb do
 
   def view do
     quote do
-      use Phoenix.View, root: "lib/timeline_web/templates",
-                        namespace: TimelineWeb
+      use Phoenix.View,
+        root: "lib/timeline_web/templates",
+        namespace: TimelineWeb
 
       import Phoenix.Controller,
         only: [get_flash: 1, get_flash: 2, view_module: 1]
@@ -33,6 +34,7 @@ defmodule TimelineWeb do
       import TimelineWeb.Gettext
     end
   end
+
   def router do
     quote do
       use Phoenix.Router

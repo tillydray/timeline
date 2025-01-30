@@ -42,7 +42,8 @@ defmodule Timeline.TwelveData do
           {:error, reason} -> {:error, reason}
         end
 
-      cached -> cached
+      cached ->
+        cached
     end
   end
 
@@ -67,6 +68,7 @@ defmodule Timeline.TwelveData do
     # logs the timestamp of request to DB table
     %RequestLog{endpoint: endpoint, inserted_at: DateTime.utc_now()}
     |> Repo.insert()
+
     :ok
   end
 end
