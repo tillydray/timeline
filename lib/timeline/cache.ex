@@ -12,9 +12,12 @@ defmodule Timeline.Cache do
   end
 
   def get(key) do
+    current_time = :erlang.system_time(:millisecond)
+
     case :ets.lookup(@table, key) do
-      [{^key, {value, timestamp}}] when :erlang.system_time(:millisecond) - timestamp < @expiration_time ->
+      [{^key, {value, timestamp}}] when current_time - timestamp < @expiration_time ->
         value
+
       _ ->
         nil
     end
