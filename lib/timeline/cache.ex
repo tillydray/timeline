@@ -12,7 +12,7 @@ defmodule Timeline.Cache do
 
   def init(:ok) do
     :ets.new(@table, [:named_table, :public, :set, {:read_concurrency, true}])
-    :ok = :dets.open_file(@dets_file, type: :set)
+    {:ok, _file} = :dets.open_file(@dets_file, type: :set)
     {:ok, %{}}
   end
 
@@ -46,3 +46,4 @@ defmodule Timeline.Cache do
     :ok = :dets.close(@dets_file)
     :ok
   end
+end
