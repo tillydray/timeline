@@ -1,0 +1,1259 @@
+#+title: Docs
+
+* Getting Started
+:PROPERTIES:
+:CUSTOM_ID: getting-started
+:END:
+Welcome to the Twelve Data! You can use this API to access world
+financial markets including stocks, forex, ETFs, and cryptocurrencies.
+Most of the exchanges are available in real-time, while others have some
+[[https://twelvedata.com/stocks][delays]]. Over 20+ years of end-of-day
+data and a couple of years for intraday
+[[https://support.twelvedata.com/en/articles/5194454-historical-data][historical
+data]].
+
+If you are unfamiliar with APIs and requests, check
+[[https://support.twelvedata.com/en/articles/5620512-how-to-create-a-request][this]]
+tutorial on how to make requests as part of the
+[[https://support.twelvedata.com/en/collections/2999522-api-guide#how-to][How-to]]
+tutorials.
+
+#+begin_src highlight :style
+code & output ${examples} can be found in this section
+#+end_src
+
+** AuthenticationImportant
+:PROPERTIES:
+:CUSTOM_ID: authentication
+:END:
+Twelve Data authenticates users by valid API keys for both API and
+WebSocket. It can be specified in two ways:
+
+- At query string, as =&apikey=your_api_key=
+- At header, as =Authorization="apikey your_api_key"=
+
+A =demo= API key is used for sample requests to familiarize yourself
+with the API format. Complete access to API is available with your API
+key, which can be obtained for free by
+[[https://twelvedata.com/pricing][signing up]] for the =Basic= plan.
+Specific endpoints are available starting only from =Grow=, =Pro=,
+=Ultra= or =Enterprise= plans. However, they all can be tested as
+[[https://support.twelvedata.com/en/articles/5335783-trial][trial
+symbols]] across all markets. API will return an error if the key is
+invalid or has insufficient permissions.
+
+** Endpoints
+:PROPERTIES:
+:CUSTOM_ID: endpoints
+:END:
+API endpoints are prefixed with =https://api.twelvedata.com=\\
+WebSocket endpoints are prefixed with =wss://ws.twelvedata.com=
+
+** ParametersUseful
+:PROPERTIES:
+:CUSTOM_ID: parameters
+:END:
+**** How to separate
+:PROPERTIES:
+:CUSTOM_ID: how-to-separate
+:CLASS: h4-c
+:END:
+Parameters are ampersand(&) separated.\\
+E.g. =?symbol=AAPL&interval=5min&outputsize=200=
+
+**** Casting
+:PROPERTIES:
+:CUSTOM_ID: casting
+:CLASS: h4-c
+:END:
+Word casing doesn‘t matter when passing parameters.\\
+E.g. =?symbol=AAPL=, =?symbol=AaPl=, or =?symbol=aapl= will all
+correctly work.
+
+**** Exchanges
+:PROPERTIES:
+:CUSTOM_ID: exchanges
+:CLASS: h4-c
+:END:
+Symbol might be also passed in the form =symbol:exchange_name=.\\
+E.g. =?symbol=RY:TSX=, =?symbol=AAPL:NASDAQ=
+
+**** CSV
+:PROPERTIES:
+:CUSTOM_ID: csv
+:CLASS: h4-c
+:END:
+When the =format= parameter is set to =CSV=, additional =filename=
+parameter might be used to specify the custom name of the output file.
+E.g. =?format=CSV&filename=my_own_csv_name=
+
+**** Dates
+:PROPERTIES:
+:CUSTOM_ID: dates
+:CLASS: h4-c
+:END:
+To get the most use of =start_date=, =end_date=, and =outputsize=
+parameters when accessing historical data, refer to
+[[https://support.twelvedata.com/en/articles/5214728-getting-historical-data][this]]
+tutorial.
+
+** Batch RequestsUseful
+:PROPERTIES:
+:CUSTOM_ID: batch-requests
+:END:
+Batch requests might be used on top of most endpoints including
+technical indicators. It allows requesting multiple symbols
+simultaneously.
+
+#+begin_quote
+HTTP request example
+#+end_quote
+
+#+begin_src highlight :style
+https://api.twelvedata.com/time_series?symbol=AAPL,EUR/USD,ETH/BTC:Huobi,TRP:TSX&interval=1min&apikey=your_api_key
+#+end_src
+
+#+begin_quote
+This request will return JSON with the following structure
+#+end_quote
+
+#+begin_src highlight
+{
+   "AAPL": {
+      "meta": {
+         "symbol": "AAPL",
+         "interval": "1min",
+         "currency": "USD",
+         "exchange_timezone": "America/New_York",
+         "exchange": "NASDAQ",
+         "type": "Common Stock"
+      },
+      "values": [
+         {
+            "datetime": "2020-02-26 15:59:00",
+            "open": "292.89001",
+            "high": "293.10001",
+            "low": "292.50000",
+            "close": "292.64999",
+            "volume": "385977"
+         },
+         {...}
+      ],
+      "status": "ok"
+   },
+   "EUR/USD": {
+      {...}
+   },
+   "ETH/BTC:Huobi": {
+      {...}
+   },
+   "TRP:TSX": {
+      {...}
+   }
+}
+#+end_src
+
+*** Request
+:PROPERTIES:
+:CUSTOM_ID: request
+:END:
+**** Basic call
+:PROPERTIES:
+:CUSTOM_ID: basic-call
+:CLASS: h4-c
+:END:
+All symbols should be comma delimited and provided in =symbol=
+parameter. E.g:\\
+=/time_series?symbol=AAPL,QQQ,EUR/USD,CBQK=
+
+**** Exchange specific call
+:PROPERTIES:
+:CUSTOM_ID: exchange-specific-call
+:CLASS: h4-c
+:END:
+In order to call symbol from the specific exchange, use
+=symbol_ticker:exchange= format. E.g:\\
+=/bbands?symbol=ETH/BTC:Huobi,TRP:TSX,INFY:BSE=
+
+**** General
+:PROPERTIES:
+:CUSTOM_ID: general
+:CLASS: h4-c
+:END:
+All instruments might be called in an arbitrary order and mixes, such as
+stocks, forex, crypto, and ETFs.\\
+Request count will be incremented according to the number of passed
+symbols.\\
+Batch requests only support =JSON= format.\\
+Limited to =120= symbols per request.
+
+*** Response
+:PROPERTIES:
+:CUSTOM_ID: response
+:END:
+The response consists of the main object where the key is the symbol
+passed and value is the normal object consisting of meta, values,
+status.\\
+The response header will also include =is_batch= set to =true= if the
+request is batch with multiple returns symbols.
+
+**** Error handling
+:PROPERTIES:
+:CUSTOM_ID: error-handling
+:CLASS: h4-c
+:END:
+In the case that there was an error during processing one of the
+symbols, the error will only be returned for that specific symbol
+without affecting other instrument responses.
+
+*** JSON request example
+:PROPERTIES:
+:CUSTOM_ID: json-request-example
+:END:
+[[https://api.twelvedata.com/time_series?symbol=AAPL,EUR/USD,CBQK&interval=1min&apikey=demo&source=docs][=https://api.twelvedata.com/time_series?symbol=AAPL,EUR/USD,CBQK&interval=1min&apikey=demo=]]
+
+[[https://api.twelvedata.com/time_series?symbol=ETH/BTC:Huobi,TRP:TSX,INFY:BSE&interval=30min&outputsize=12&apikey=demo&source=docs][=https://api.twelvedata.com/time_series?symbol=ETH/BTC:Huobi,TRP:TSX,INFY:BSE&interval=30min&outputsize=12&apikey=demo=]]
+
+** Errors
+:PROPERTIES:
+:CUSTOM_ID: errors
+:END:
+Twelve Data API uses a unified error response scheme. Consisting of a
+JSON object with =code=, =message= and =status= keys.
+
+#+begin_quote
+HTTP request example
+#+end_quote
+
+#+begin_src highlight :style
+https://api.twelvedata.com/time_series?symbol=AAPL&interval=0.99min&apikey=your_api_key
+#+end_src
+
+#+begin_quote
+This request with incorrect interval set will return JSON with the
+following structure
+#+end_quote
+
+#+begin_src highlight
+{
+  "code": 400,
+  "message": "Invalid **interval** provided: 0.99min. Supported intervals: 1min, 5min, 15min, 30min, 45min, 1h, 2h, 4h, 8h, 1day, 1week, 1month",
+  "status": "error"
+}
+#+end_src
+
+Possible output error codes are:
+
+| Error Code | Status                | Meaning                                                                                    |
+|------------+-----------------------+--------------------------------------------------------------------------------------------|
+| 400        | Bad Request           | There is an error with one or multiple parameters.                                         |
+| 401        | Unauthorized          | Your API key is wrong or not valid.                                                        |
+| 403        | Forbidden             | Your API key is valid but has no permissions to make request available on the upper plans. |
+| 404        | Not Found             | The specified data can not be found.                                                       |
+| 414        | Parameter Too Long    | The parameter which accepts multiple values is out of range.                               |
+| 429        | Too Many Requests     | You've reached your API request limits.                                                    |
+| 500        | Internal Server Error | There is an error on the server-side. Try again later.                                     |
+
+*** How to overcome the errors:
+:PROPERTIES:
+:CUSTOM_ID: how-to-overcome-the-errors
+:END:
+- *400* Follow message instructions in response. Usually, it will arise
+  if one of the input parameters is set incorrectly. Try to read over
+  API Documentation and modify the parameter.
+- *401* Invalid API key is used. If you don't have one yet - get it
+  [[https://twelvedata.com/pricing][here]].
+- *403* Upgrade your API key to an upper plan
+  [[https://twelvedata.com/pricing][here]].
+- *404* Query parameters are set too strict and accordingly, data can
+  not be loaded. Try to set less rigid parameters values.
+- *414* Arises when the parameter accepts an array of values and length
+  of the array is larger than the maximum number allowed. Follow the
+  message instructions and set the parameter accordingly.
+- *429* API key minute limit is reached. Either wait for a while or
+  increase your API key limits [[https://twelvedata.com/pricing][here]]
+- *500* Very rare to appear, signifying some server-side errors. In this
+  case, [[https://twelvedata.com/contact][contact us]] and we will
+  settle down the issue.
+
+** Roadmap
+:PROPERTIES:
+:CUSTOM_ID: roadmap
+:END:
+We continuously make Twelve Data the only place where all users can
+obtain the necessary financial data. If you have any questions or ideas
+about improvement, [[https://twelvedata.com/contact][contact us]].
+
+** LibrariesUseful
+:PROPERTIES:
+:CUSTOM_ID: libraries
+:END:
+Here, we publish libraries created to get the most of Twelve Data. We
+work towards making the industry the best SDKs for the most popular
+languages. Large releases are coming soon. A full list can be found on
+[[https://github.com/search?q=twelvedata][GitHub]].
+
+*** Official libraries and Add-ins
+:PROPERTIES:
+:CUSTOM_ID: official-libraries-and-add-ins
+:END:
+| Language      | URL                                                                    |
+|---------------+------------------------------------------------------------------------|
+| Python        | [[https://github.com/twelvedata/twelvedata-python][twelvedata-python]] |
+| R             | [[https://github.com/twelvedata/twelvedata-r-sdk][twelvedata-r-sdk]]   |
+| Excel         | [[https://twelvedata.com/excel][Excel Add-in]]                         |
+| Google Sheets | [[https://twelvedata.com/google-sheets][Google Sheets Add-on]]         |
+
+*** Third-party libraries
+:PROPERTIES:
+:CUSTOM_ID: third-party-libraries
+:END:
+| Language   | URL                                                                   |
+|------------+-----------------------------------------------------------------------|
+| C#         | [[https://github.com/pseudomarkets/TwelveDataSharp][TwelveDataSharp]] |
+| JavaScript | [[https://github.com/evzaboun/twelvedata][twelvedata]]                |
+| PHP        | [[https://github.com/ingelby/twelvedata][twelvedata]]                 |
+| Go         | [[https://github.com/soulgarden/twelvedata][twelvedata]]              |
+
+The same list can also be accessed at the
+[[https://support.twelvedata.com/en/articles/5304475-sdks-and-libraries][Support
+Center]].
+
+** Support
+:PROPERTIES:
+:CUSTOM_ID: support
+:END:
+Please refer to the [[https://support.twelvedata.com/][Help Center]] for
+general assistance. If your question has not been answered yet drop a
+[[https://twelvedata.com/contact][message]] to us.
+
+* Reference Data
+:PROPERTIES:
+:CUSTOM_ID: reference-data
+:END:
+Reference Data returns general data that can be used to enhance your
+project generalization.
+
+** Stocks List
+:PROPERTIES:
+:CUSTOM_ID: stocks-list
+:END:
+
+This API call returns an array of symbols available at Twelve Data API.
+This list is updated daily.
+
+#+begin_quote
+HTTP request example
+#+end_quote
+
+#+begin_src highlight :style
+https://api.twelvedata.com/stocks
+#+end_src
+
+#+begin_quote
+This request will return JSON with the following structure
+#+end_quote
+
+#+begin_src highlight
+[
+  {
+    "symbol": "AAPL",
+    "name": "Apple Inc",
+    "currency": "USD",
+    "exchange": "NASDAQ",
+    "mic_code": "XNGS",
+    "country": "United States",
+    "type": "Common Stock",
+    "figi_code": "BBG000B9Y5X2"
+  },
+  {
+    "symbol": "AAT",
+    "name": "American Assets Trust Inc",
+    "currency": "USD",
+    "exchange": "NYSE",
+    "mic_code": "XNYS",
+    "country": "United States",
+    "type": "Real Estate Investment Trust (REIT)",
+    "figi_code": "BBG00161BCW4"
+  },
+  {...}
+]
+
+// with &show_plan=true
+{
+  "data": [
+    {
+      "symbol": "TCS",
+      "name": "Tata Consultancy Services Limited",
+      "currency": "INR",
+      "exchange": "NSE",
+      "mic_code": "XNSE",
+      "country": "India",
+      "type": "Common Stock",
+      "figi_code": "BBG000Q0WGC6",
+      "access": {
+        "global": "Level A",
+        "plan": "Grow"
+      }
+    },
+    {
+      "symbol": "TCS",
+      "name": "Axon Enterprise Inc",
+      "currency": "EUR",
+      "exchange": "FSX",
+      "mic_code": "XFRA",
+      "country": "Germany",
+      "type": "Common Stock",
+      "figi_code": "BBG000FB37K7",
+      "access": {
+        "global": "Level A",
+        "plan": "Grow"
+      }
+    },
+    {...}
+  ],
+  "status": "ok"
+}
+#+end_src
+
+*** HTTP route
+:PROPERTIES:
+:CUSTOM_ID: http-route
+:END:
+[[https://api.twelvedata.com/stocks?source=docs][=/stocks=]]
+
+*** API credits
+:PROPERTIES:
+:CUSTOM_ID: api-credits
+:END:
+=1= per request
+
+*** API parameters
+:PROPERTIES:
+:CUSTOM_ID: api-parameters
+:END:
+| Parameter          | Details                                                           |
+|--------------------+-------------------------------------------------------------------|
+| *symbol*           | • Parameter is optional\\                                         |
+|                    | • Filter by symbol                                                |
+| *figi*             | • Parameter is optional\\                                         |
+|                    | • Filter by financial instrument global identifier (FIGI)         |
+| *exchange*         | • Parameter is optional\\                                         |
+|                    | • Filter by exchange name or mic code                             |
+| *mic_code*         | • Parameter is optional\\                                         |
+|                    | • Filter by market identifier code (MIC) under ISO 10383 standard |
+| *country*          | • Parameter is optional\\                                         |
+|                    | • Filter by country name or alpha code                            |
+| *type*             | • Parameter is optional\\                                         |
+|                    | • Filter by instrument type                                       |
+| *format*           | • Parameter is optional\\                                         |
+|                    | • Value can be =JSON= or =CSV=; Default =JSON=                    |
+| *delimiter*        | • Parameter is optional\\                                         |
+|                    | • Specify the delimiter used when downloading the =CSV= file\\    |
+|                    | • Default semicolon =;=                                           |
+| *show_plan*        | • Parameter is optional\\                                         |
+|                    | • Adds info on which plan symbol is available\\                   |
+|                    | • Boolean; Default =false=                                        |
+| *include_delisted* | • Parameter is optional\\                                         |
+|                    | • Include delisted identifiers\\                                  |
+|                    | • Boolean; Default =false=                                        |
+
+*** Response
+:PROPERTIES:
+:CUSTOM_ID: response
+:END:
+| Key         | Description                                                   |
+|-------------+---------------------------------------------------------------|
+| *symbol*    | instrument symbol (ticker)                                    |
+| *name*      | full name of instrument                                       |
+| *currency*  | currency of the instrument according to the ISO 4217 standard |
+| *exchange*  | exchange where instrument is traded                           |
+| *mic_code*  | market identifier code (MIC) under ISO 10383 standard         |
+| *country*   | country where exchange is located                             |
+| *type*      | common issue type                                             |
+| *figi_code* | financial instrument global identifier (FIGI)                 |
+
+*** JSON request example
+:PROPERTIES:
+:CUSTOM_ID: json-request-example
+:END:
+[[https://api.twelvedata.com/stocks?source=docs][=https://api.twelvedata.com/stocks=]]
+
+[[https://api.twelvedata.com/stocks?symbol=AAPL&source=docs][=https://api.twelvedata.com/stocks?symbol=AAPL=]]
+
+*** Downloadable CSV example
+:PROPERTIES:
+:CUSTOM_ID: downloadable-csv-example
+:END:
+[[https://api.twelvedata.com/stocks?format=CSV&source=docs][=https://api.twelvedata.com/stocks?format=CSV=]]
+
+* Core Data
+:PROPERTIES:
+:CUSTOM_ID: core-data
+:END:
+Core data return time series, quotes, rates, and other prices across
+equities, forex, cryptocurrencies, and ETFs along with other data types.
+
+** Time SeriesHigh Demand
+:PROPERTIES:
+:CUSTOM_ID: time-series
+:END:
+This API call returns meta and time series for the requested instrument.
+Metaobject consists of general information about the requested symbol.
+Time series is the array of objects ordered by time descending with
+Open, High, Low, Close prices. Non-currency instruments also include
+volume information.
+
+#+begin_quote
+HTTP request example
+#+end_quote
+
+#+begin_src highlight :style
+https://api.twelvedata.com/time_series?symbol=AAPL&interval=1min&apikey=your_api_key
+#+end_src
+
+#+begin_quote
+This request will return JSON with the following structure
+#+end_quote
+
+#+begin_src highlight
+{
+  "meta": {
+    "symbol": "AAPL",
+    "interval": "1min",
+    "currency": "USD",
+    "exchange_timezone": "America/New_York",
+    "exchange": "NASDAQ",
+    "mic_code": "XNAS",
+    "type": "Common Stock"
+  },
+  "values": [
+    {
+      "datetime": "2021-09-16 15:59:00",
+      "open": "148.73500",
+      "high": "148.86000",
+      "low": "148.73000",
+      "close": "148.85001",
+      "volume": "624277"
+    },
+    {
+      "datetime": "2021-09-16 15:58:00",
+      "open": "148.72000",
+      "high": "148.78000",
+      "low": "148.70000",
+      "close": "148.74001",
+      "volume": "274622"
+    },
+    {
+      "datetime": "2021-09-16 15:57:00",
+      "open": "148.77499",
+      "high": "148.79500",
+      "low": "148.71001",
+      "close": "148.72501",
+      "volume": "254725"
+    },
+    {
+      "datetime": "2021-09-16 15:56:00",
+      "open": "148.76500",
+      "high": "148.78999",
+      "low": "148.72000",
+      "close": "148.78000",
+      "volume": "230758"
+    },
+    {
+      "datetime": "2021-09-16 15:55:00",
+      "open": "148.80000",
+      "high": "148.80000",
+      "low": "148.70000",
+      "close": "148.76230",
+      "volume": "348577"
+    }
+  ],
+  "status": "ok"
+}
+#+end_src
+
+*** HTTP route
+:PROPERTIES:
+:CUSTOM_ID: http-route
+:END:
+[[https://api.twelvedata.com/time_series?symbol=AAPL&interval=1min&apikey=demo&source=docs][=/time_series=]]
+
+*** API credits
+:PROPERTIES:
+:CUSTOM_ID: api-credits
+:END:
+=1= per symbol
+
+*** API parameters
+:PROPERTIES:
+:CUSTOM_ID: api-parameters
+:END:
+| Key              | Type   | Description                                                                                                                                                                                                                                                                                                                                                 |
+|------------------+--------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| *symbol*         | string | • Required parameter\\                                                                                                                                                                                                                                                                                                                                      |
+|                  |        | • Symbol ticker of the instrument\\                                                                                                                                                                                                                                                                                                                         |
+|                  |        | E.g. =AAPL=, =EUR/USD=, =ETH/BTC=, ...                                                                                                                                                                                                                                                                                                                      |
+| *figi*           | string | • Parameter is optional\\                                                                                                                                                                                                                                                                                                                                   |
+|                  |        | • Filter by financial instrument global identifier (FIGI)                                                                                                                                                                                                                                                                                                   |
+| *interval*       | string | • Required parameter\\                                                                                                                                                                                                                                                                                                                                      |
+|                  |        | • Interval between two consecutive points in time series\\                                                                                                                                                                                                                                                                                                  |
+|                  |        | • Supports: =1min=, =5min=, =15min=, =30min=, =45min=, =1h=, =2h=, =4h=, =1day=, =1week=, =1month=                                                                                                                                                                                                                                                          |
+| *exchange*       | string | • Parameter is optional\\                                                                                                                                                                                                                                                                                                                                   |
+|                  |        | • Exchange where instrument is traded                                                                                                                                                                                                                                                                                                                       |
+| *mic_code*       | string | • Parameter is optional\\                                                                                                                                                                                                                                                                                                                                   |
+|                  |        | • Market Identifier Code (MIC) under ISO 10383 standard                                                                                                                                                                                                                                                                                                     |
+| *country*        | string | • Parameter is optional\\                                                                                                                                                                                                                                                                                                                                   |
+|                  |        | • Country where instrument is traded                                                                                                                                                                                                                                                                                                                        |
+| *type*           | string | • Parameter is optional\\                                                                                                                                                                                                                                                                                                                                   |
+|                  |        | • The asset class to which the instrument belongs\\                                                                                                                                                                                                                                                                                                         |
+|                  |        | • Supports =American Depositary Receipt=, =Bond=, =Bond Fund=, =Closed-end Fund=, =Common Stock=, =Depositary Receipt=, =Digital Currency=, =ETF=, =Exchange-Traded Note=, =Global Depositary Receipt=, =Limited Partnership=, =Mutual Fund=, =Physical Currency=, =Preferred Stock=, =REIT=, =Right=, =Structured Product=, =Trust=, =Unit=, and =Warrant= |
+| *outputsize*     | number | • Parameter is optional\\                                                                                                                                                                                                                                                                                                                                   |
+|                  |        | • Number of data points to retrieve\\                                                                                                                                                                                                                                                                                                                       |
+|                  |        | • Supports values in the range from =1= to =5000=\\                                                                                                                                                                                                                                                                                                         |
+|                  |        | • Default =30= when no date parameters are set, otherwise set to maximum                                                                                                                                                                                                                                                                                    |
+| *format*         | string | • Parameter is optional\\                                                                                                                                                                                                                                                                                                                                   |
+|                  |        | • Value can be =JSON= or =CSV=\\                                                                                                                                                                                                                                                                                                                            |
+|                  |        | • Default =JSON=                                                                                                                                                                                                                                                                                                                                            |
+| *delimiter*      | string | • Parameter is optional\\                                                                                                                                                                                                                                                                                                                                   |
+|                  |        | • Specify the delimiter used when downloading the =CSV= file\\                                                                                                                                                                                                                                                                                              |
+|                  |        | • Default semicolon =;=                                                                                                                                                                                                                                                                                                                                     |
+| *apikey*         | string | • Required parameter\\                                                                                                                                                                                                                                                                                                                                      |
+|                  |        | • Your API key, which you can obtain for free [[https://twelvedata.com/pricing][here]]                                                                                                                                                                                                                                                                      |
+| *prepost*        | string | • Parameter is optional. Only for =Pro= and above plans.\\                                                                                                                                                                                                                                                                                                  |
+|                  |        | • Available at the =1min=, =5min=, =15min=, and =30min= intervals for all US equities.\\                                                                                                                                                                                                                                                                    |
+|                  |        | • Open, high, low, close values are supplied without volume.\\                                                                                                                                                                                                                                                                                              |
+|                  |        | • Default =false=                                                                                                                                                                                                                                                                                                                                           |
+|                  |        | Advanced parameters                                                                                                                                                                                                                                                                                                                                         |
+| *dp*             | string | • Parameter is optional\\                                                                                                                                                                                                                                                                                                                                   |
+|                  |        | • Specifies the number of decimal places for floating values\\                                                                                                                                                                                                                                                                                              |
+|                  |        | • Should be in range [0,11] inclusive\\                                                                                                                                                                                                                                                                                                                     |
+|                  |        | • Type =int=; By default, the number of decimal places is automatically determined based on the values provided.                                                                                                                                                                                                                                            |
+| *order*          | string | • Parameter is optional\\                                                                                                                                                                                                                                                                                                                                   |
+|                  |        | • Sorting order of the output\\                                                                                                                                                                                                                                                                                                                             |
+|                  |        | • Supports =ASC=, =DESC=; Default =DESC=                                                                                                                                                                                                                                                                                                                    |
+| *timezone*       | string | • Parameter is optional\\                                                                                                                                                                                                                                                                                                                                   |
+|                  |        | • Timezone at which output datetime will be displayed\\                                                                                                                                                                                                                                                                                                     |
+|                  |        | • Supports:\\                                                                                                                                                                                                                                                                                                                                               |
+|                  |        |    ◦ =Exchange= for local exchange time\\                                                                                                                                                                                                                                                                                                                   |
+|                  |        |    ◦ =UTC= for datetime at universal UTC standard\\                                                                                                                                                                                                                                                                                                         |
+|                  |        |    ◦ Timezone name according to the IANA Time Zone Database. E.g. =America/New_York=, =Asia/Singapore=. Full list of timezones can be found [[https://en.wikipedia.org/wiki/List_of_tz_database_time_zones][here ↗]].\\                                                                                                                                     |
+|                  |        | /Take note that the IANA Timezone name is case-sensitive/\\                                                                                                                                                                                                                                                                                                 |
+|                  |        | • Type =string=; Default =Exchange=                                                                                                                                                                                                                                                                                                                         |
+| *date*           | string | • Parameter is optional\\                                                                                                                                                                                                                                                                                                                                   |
+|                  |        | • Specifies the exact date to get the data for\\                                                                                                                                                                                                                                                                                                            |
+|                  |        | • Could be the exact date, e.g. =2021-10-27=, or in human language =today= or =yesterday=                                                                                                                                                                                                                                                                   |
+| *start_date*\\   | string | • Parameters are optional\\                                                                                                                                                                                                                                                                                                                                 |
+| *end_date*       |        | • Can be used separately and together\\                                                                                                                                                                                                                                                                                                                     |
+|                  |        | • Format =2006-01-02= or =2006-01-02 15:04:05=                                                                                                                                                                                                                                                                                                              |
+|                  |        |                                                                                                                                                                                                                                                                                                                                                             |
+|                  |        |                                                                                                                                                                                                                                                                                                                                                             |
+|                  |        |                                                                                                                                                                                                                                                                                                                                                             |
+|                  |        | • Default location:\\                                                                                                                                                                                                                                                                                                                                       |
+|                  |        |    ◦ Forex and Cryptocurrencies - =UTC=\\                                                                                                                                                                                                                                                                                                                   |
+|                  |        |    ◦ Stocks - where exchange is located (e.g. for =AAPL= it will be =America/New_York=)\\                                                                                                                                                                                                                                                                   |
+|                  |        | • Both parameters take into account if =timezone= parameter is provided.\\                                                                                                                                                                                                                                                                                  |
+|                  |        | If =timezone= is given then, =start_date= and =end_date= will be used in the specified location                                                                                                                                                                                                                                                             |
+|                  |        |                                                                                                                                                                                                                                                                                                                                                             |
+|                  |        |                                                                                                                                                                                                                                                                                                                                                             |
+|                  |        |                                                                                                                                                                                                                                                                                                                                                             |
+|                  |        | Examples:                                                                                                                                                                                                                                                                                                                                                   |
+|                  |        | 1. =&symbol=AAPL&start_date=2019-08-09 15:50:00&…=\\                                                                                                                                                                                                                                                                                                        |
+|                  |        |    Returns all records starting from 2019-08-09 15:50:00 New York time up to current date                                                                                                                                                                                                                                                                   |
+|                  |        | 2. =&symbol=EUR/USD&timezone=Asia/Singapore&start_date=2019-08-09 15:50:00&…=\\                                                                                                                                                                                                                                                                             |
+|                  |        |    Returns all records starting from 2019-08-09 15:50:00 Singapore time up to current date                                                                                                                                                                                                                                                                  |
+|                  |        | 3. =&symbol=ETH/BTC&timezone=Europe/Zurich&start_date=2019-08-09 15:50:00&end_date=2019-08-09 15:55:00&...=\\                                                                                                                                                                                                                                               |
+|                  |        |    Returns all records starting from 2019-08-09 15:50:00 Zurich time up to 2019-08-09 15:55:00                                                                                                                                                                                                                                                              |
+| *previous_close* | string | • Parameter is optional\\                                                                                                                                                                                                                                                                                                                                   |
+|                  |        | • If =true=, adds previous bar close price value to the current object\\                                                                                                                                                                                                                                                                                    |
+|                  |        | • Only applicable to =/time_series= endpoint\\                                                                                                                                                                                                                                                                                                              |
+|                  |        | • Type =bool=; Default =false=                                                                                                                                                                                                                                                                                                                              |
+| *adjust*         | string | • Parameter is optional\\                                                                                                                                                                                                                                                                                                                                   |
+|                  |        | • Adjusting mode for prices\\                                                                                                                                                                                                                                                                                                                               |
+|                  |        | • Supports all, splits, dividends, none\\                                                                                                                                                                                                                                                                                                                   |
+|                  |        | • Default is splits                                                                                                                                                                                                                                                                                                                                         |
+
+*** Response
+:PROPERTIES:
+:CUSTOM_ID: response
+:END:
+| Key        | Description                                                                                  |
+|------------+----------------------------------------------------------------------------------------------|
+| *meta*     | json object with request general information                                                 |
+| *datetime* | datetime at local exchange time referring to when the bar with specified interval was opened |
+| *open*     | price at the opening of current bar                                                          |
+| *high*     | highest price which occurred during the current bar                                          |
+| *low*      | lowest price which occurred during the current bar                                           |
+| *close*    | close price at the end of the bar                                                            |
+| *volume*   | trading volume which occurred during the current bar                                         |
+
+*** JSON request example
+:PROPERTIES:
+:CUSTOM_ID: json-request-example
+:END:
+[[https://api.twelvedata.com/time_series?symbol=AAPL&interval=1min&apikey=demo&source=docs][=https://api.twelvedata.com/time_series?symbol=AAPL&interval=1min&apikey=demo=]]
+
+[[https://api.twelvedata.com/time_series?symbol=EUR/USD&interval=1day&outputsize=12&apikey=demo&source=docs][=https://api.twelvedata.com/time_series?symbol=EUR/USD&interval=1day&outputsize=12&apikey=demo=]]
+
+*** Downloadable CSV example
+:PROPERTIES:
+:CUSTOM_ID: downloadable-csv-example
+:END:
+[[https://api.twelvedata.com/time_series?symbol=BTC/USD&interval=5min&format=CSV&apikey=demo&source=docs][=https://api.twelvedata.com/time_series?symbol=BTC/USD&interval=5min&format=CSV&apikey=demo=]]
+
+* Fundamentals
+:PROPERTIES:
+:CUSTOM_ID: fundamentals
+:END:
+Fundamental data covers a broad range of datasets for US-based and
+international stock, ETFs, and mutual funds. Including, but not limited
+to financials, profiles, transactions, and more.
+
+** Logo
+:PROPERTIES:
+:CUSTOM_ID: logo
+:END:
+Returns a logo of company, cryptocurrency, or forex pair.
+
+#+begin_quote
+HTTP request example
+#+end_quote
+
+#+begin_src highlight :style
+https://api.twelvedata.com/logo?symbol=AAPL&apikey=your_api_key
+
+https://api.twelvedata.com/logo?symbol=BTC/USD&apikey=your_api_key
+
+https://api.twelvedata.com/logo?symbol=EUR/USD&apikey=your_api_key
+#+end_src
+
+#+begin_quote
+This request will return JSON with the following structure
+#+end_quote
+
+#+begin_src highlight
+// Equity
+{
+  "meta": {
+    "symbol": "AAPL",
+    "name": "Apple Inc",
+    "currency": "USD",
+    "exchange": "NASDAQ",
+    "mic_code": "XNAS",
+    "exchange_timezone": "America/New_York"
+  },
+  "url": "https://api.twelvedata.com/logo/apple.com"
+}
+
+// Crypto
+{
+  "meta": {
+    "symbol": "BTC/USD",
+  },
+  "logo_base": "https://logo.twelvedata.com/crypto/btc.png",
+  "logo_quote": "https://logo.twelvedata.com/crypto/usd.png"
+}
+
+// Forex
+{
+  "meta": {
+    "symbol": "EUR/USD"
+  },
+  "logo_base": "https://logo.twelvedata.com/forex/eur.png",
+  "logo_quote": "https://logo.twelvedata.com/forex/usd.png"
+}
+#+end_src
+
+*** HTTP route
+:PROPERTIES:
+:CUSTOM_ID: http-route
+:END:
+[[https://api.twelvedata.com/logo?symbol=AAPL&apikey=demo&source=docs][=/logo=]]
+
+*** API credits
+:PROPERTIES:
+:CUSTOM_ID: api-credits
+:END:
+=1= per symbol
+
+*** API parameters
+:PROPERTIES:
+:CUSTOM_ID: api-parameters
+:END:
+| Key        | Type   | Description                                                                            |
+|------------+--------+----------------------------------------------------------------------------------------|
+| *symbol*   | string | • Required parameter\\                                                                 |
+|            |        | • Symbol ticker of the instrument\\                                                    |
+|            |        | E.g. =AAPL=, =EUR/USD=, =ETH/BTC=, ...                                                 |
+| *exchange* | string | • Parameter is optional\\                                                              |
+|            |        | • Exchange where instrument is traded                                                  |
+| *mic_code* | string | • Parameter is optional\\                                                              |
+|            |        | • Market Identifier Code (MIC) under ISO 10383 standard                                |
+| *country*  | string | • Parameter is optional\\                                                              |
+|            |        | • Country where instrument is traded                                                   |
+| *apikey*   | string | • Required parameter\\                                                                 |
+|            |        | • Your API key, which you can obtain for free [[https://twelvedata.com/pricing][here]] |
+
+*** Response
+:PROPERTIES:
+:CUSTOM_ID: response
+:END:
+| Key   | Type   | Description               |
+|-------+--------+---------------------------|
+| *url* | string | link to download the logo |
+
+*** JSON request example
+:PROPERTIES:
+:CUSTOM_ID: json-request-example
+:END:
+[[https://api.twelvedata.com/logo?symbol=AAPL&apikey=demo&source=docs][=https://api.twelvedata.com/logo?symbol=AAPL&apikey=demo=]]
+
+[[https://api.twelvedata.com/logo?symbol=BTC/USD&apikey=demo&source=docs][=https://api.twelvedata.com/logo?symbol=BTC/USD&apikey=demo=]]
+
+[[https://api.twelvedata.com/logo?symbol=EUR/USD&apikey=demo&source=docs][=https://api.twelvedata.com/logo?symbol=EUR/USD&apikey=demo=]]
+
+** StatisticsHigh Demand
+:PROPERTIES:
+:CUSTOM_ID: statistics
+:END:
+Returns current overview of company's main statistics including
+valuation metrics and financials.
+
+This API endpoint is available starting with the
+[[https://twelvedata.com/pricing][Pro plan]].
+
+#+begin_quote
+HTTP request example
+#+end_quote
+
+#+begin_src highlight :style
+https://api.twelvedata.com/statistics?symbol=AAPL&apikey=your_api_key
+#+end_src
+
+#+begin_quote
+This request will return JSON with the following structure
+#+end_quote
+
+#+begin_src highlight
+{
+  "meta": {
+    "symbol": "AAPL",
+    "name": "Apple Inc",
+    "currency": "USD",
+    "exchange": "NASDAQ",
+    "mic_code": "XNAS",
+    "exchange_timezone": "America/New_York"
+  },
+  "statistics": {
+    "valuations_metrics": {
+      "market_capitalization": 2546807865344,
+      "enterprise_value": 2620597731328,
+      "trailing_pe": 30.162493,
+      "forward_pe": 26.982489,
+      "peg_ratio": 1.4,
+      "price_to_sales_ttm": 7.336227,
+      "price_to_book_mrq": 39.68831,
+      "enterprise_to_revenue": 7.549,
+      "enterprise_to_ebitda": 23.623
+    },
+    "financials": {
+      "fiscal_year_ends": "2020-09-26",
+      "most_recent_quarter": "2021-06-26",
+      "gross_margin": 46.57807
+      "profit_margin": 0.25004,
+      "operating_margin": 0.28788,
+      "return_on_assets_ttm": 0.19302,
+      "return_on_equity_ttm": 1.27125,
+      "income_statement": {
+        "revenue_ttm": 347155005440,
+        "revenue_per_share_ttm": 20.61,
+        "quarterly_revenue_growth": 0.364,
+        "gross_profit_ttm": 104956000000,
+        "ebitda": 110934999040,
+        "net_income_to_common_ttm": 86801997824,
+        "diluted_eps_ttm": 5.108,
+        "quarterly_earnings_growth_yoy": 0.932
+      },
+      "balance_sheet": {
+        "revenue_ttm": 347155005440,
+        "total_cash_mrq": 61696000000,
+        "total_cash_per_share_mrq": 3.732,
+        "total_debt_mrq": 135491002368,
+        "total_debt_to_equity_mrq": 210.782,
+        "current_ratio_mrq": 1.062,
+        "book_value_per_share_mrq": 3.882
+      },
+      "cash_flow": {
+        "operating_cash_flow_ttm": 104414003200,
+        "levered_free_cash_flow_ttm": 80625876992
+      }
+    },
+    "stock_statistics": {
+      "shares_outstanding": 16530199552,
+      "float_shares": 16513305231,
+      "avg_10_volume": 72804757,
+      "avg_90_volume": 77013078,
+      "shares_short": 93105968,
+      "short_ratio": 1.19,
+      "short_percent_of_shares_outstanding": 0.0056,
+      "percent_held_by_insiders": 0.00071000005,
+      "percent_held_by_institutions": 0.58474
+    },
+    "stock_price_summary": {
+      "fifty_two_week_low": 103.1,
+      "fifty_two_week_high": 157.26,
+      "fifty_two_week_change": 0.375625,
+      "beta": 1.201965,
+      "day_50_ma": 148.96686,
+      "day_200_ma": 134.42506
+    },
+    "dividends_and_splits": {
+      "forward_annual_dividend_rate": 0.88,
+      "forward_annual_dividend_yield": 0.0057,
+      "trailing_annual_dividend_rate": 0.835,
+      "trailing_annual_dividend_yield": 0.0053832764,
+      "5_year_average_dividend_yield": 1.27,
+      "payout_ratio": 0.16309999,
+      "dividend_frequency": "Quarterly",
+      "dividend_date": "2021-08-12",
+      "ex_dividend_date": "2021-08-06",
+      "last_split_factor": "4-for-1 split",
+      "last_split_date": "2020-08-31"
+    }
+  }
+}
+#+end_src
+
+*** HTTP route
+:PROPERTIES:
+:CUSTOM_ID: http-route-10
+:END:
+[[https://api.twelvedata.com/statistics?symbol=AAPL&apikey=demo&source=docs][=/statistics=]]
+
+*** API credits
+:PROPERTIES:
+:CUSTOM_ID: api-credits-10
+:END:
+=50= per symbol
+
+*** API parameters
+:PROPERTIES:
+:CUSTOM_ID: api-parameters-10
+:END:
+| Key        | Type   | Description                                                                                                      |
+|------------+--------+------------------------------------------------------------------------------------------------------------------|
+| *symbol*   | string | • Required parameter\\                                                                                           |
+|            |        | • Symbol ticker of instrument\\                                                                                  |
+|            |        | • For preffered stocks use dot(.) delimiter\\                                                                    |
+|            |        | E.g. =BRK.A= or =BRK.B= will be correct                                                                          |
+| *figi*     | string | • Parameter is optional\\                                                                                        |
+|            |        | • Filter by financial instrument global identifier (FIGI)                                                        |
+| *exchange* | string | • Parameter is optional\\                                                                                        |
+|            |        | • Exchange where instrument is traded                                                                            |
+| *mic_code* | string | • Parameter is optional\\                                                                                        |
+|            |        | • Market Identifier Code (MIC) under ISO 10383 standard                                                          |
+| *country*  | string | • Parameter is optional\\                                                                                        |
+|            |        | • Country where instrument is traded                                                                             |
+| *apikey*   | string | • Required parameter\\                                                                                           |
+|            |        | • Your API key upgraded to the Pro plan or above, which can be obtained [[https://twelvedata.com/pricing][here]] |
+
+*** Response
+:PROPERTIES:
+:CUSTOM_ID: response-10
+:END:
+| Key                                   | Type   | Description                                                                                                                                                                        |
+|---------------------------------------+--------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| *name*                                | string | Name of the company                                                                                                                                                                |
+| *market_capitalization*               | number | Refers to the market value of the company's outstanding shares                                                                                                                     |
+| *enterprise_value*                    | number | Refers to enterprise value (EV) of the company, often used as a more comprehensive alternative to market capitalization                                                            |
+| *trailing_pe*                         | number | Refers to the trailing price-to-earnings (P/E). It is calculated by taking the current stock price and dividing it by the trailing earnings per share (EPS) for the past 12 months |
+| *forward_pe*                          | number | Refers to the forward price-to-earnings ratio. It is calculated by dividing the current share price by the estimated future earnings per share                                     |
+| *peg_ratio*                           | number | The price/earnings to growth (PEG) ratio is a price-to-earnings ratio divided by the growth rate of the earnings                                                                   |
+| *price_to_sales_ttm*                  | number | The price-to-sales (P/S) ratio is a valuation ratio that compares the market capitalization to its revenues over the last 12 months                                                |
+| *price_to_book_mrq*                   | number | The price-to-book (P/B) ratio is equal to the current share price divided by the book value of all shares (BVPS) over the last quarter                                             |
+| *enterprise_to_revenue*               | number | The enterprise value-to-revenue multiple (EV/R) is a measure that compares enterprise value to revenue                                                                             |
+| *enterprise_to_ebitda*                | number | The enterprise value-to-ebitda multiple (EV/EBITDA) is a measure that compares enterprise value to EBITDA                                                                          |
+| *fiscal_year_ends*                    | string | Refers to the completion of the last 12-month accounting period                                                                                                                    |
+| *most_recent_quarter*                 | string | The most recent quarter (MRQ) refers to the fiscal quarter that most recently ended                                                                                                |
+| *gross_margin*                        | number | The portion of a company's revenue left over after direct costs are subtracted                                                                                                     |
+| *profit_margin*                       | number | Refers to gross profit margin. Calculated by dividing net income by sales revenue                                                                                                  |
+| *operating_margin*                    | number | Operating margin is calculated by dividing operating income by net sales                                                                                                           |
+| *return_on_assets_ttm*                | number | Return on assets (ROA) is calculated by dividing net income by total assets                                                                                                        |
+| *return_on_equity_ttm*                | number | Return on equity (ROE) is calculated by dividing net income by average shareholders' equity                                                                                        |
+| *revenue_ttm*                         | number | Refers to total revenue over the last 12 months                                                                                                                                    |
+| *revenue_per_share_ttm*               | number | Refers to revenue per share over the last 12 months                                                                                                                                |
+| *quarterly_revenue_growth*            | number | Refers to quarterly revenue growth year over year                                                                                                                                  |
+| *gross_profit_ttm*                    | number | Refers to gross profit over the last 12 months                                                                                                                                     |
+| *ebitda*                              | number | Refers to EBITDA (earnings before interest, taxes, depreciation, and amortization) measure; EBITDA is not calculated for banks.                                                    |
+| *net_income_to_common_ttm*            | number | Refers to net income applicable to common shares over the last 12 months                                                                                                           |
+| *diluted_eps_ttm*                     | number | Refers to diluted EPS measure over the last 12 months                                                                                                                              |
+| *quarterly_earnings_growth_yoy*       | number | Refers to quarterly earnings growth year over year                                                                                                                                 |
+| *total_cash_mrq*                      | number | Refers to total cash measure for the most recent quarter                                                                                                                           |
+| *total_cash_per_share_mrq*            | number | Refers to total cash per share measure for the most recent quarter                                                                                                                 |
+| *total_debt_mrq*                      | number | Refers to total debt measure for the most recent quarter                                                                                                                           |
+| *total_debt_to_equity_mrq*            | number | Refers to total debt to equity measure for the most recent quarter                                                                                                                 |
+| *current_ratio_mrq*                   | number | Refers to current ratio (total assets / total liabilities) ratio for the most recent quarter                                                                                       |
+| *book_value_per_share_mrq*            | number | Refers to book value per share (BVPS) ratio for the most recent quarter                                                                                                            |
+| *operating_cash_flow_ttm*             | number | Refers to operating cash flow measure over the last 12 months                                                                                                                      |
+| *levered_free_cash_flow_ttm*          | number | Refers to levered free cash flow measure over the last 12 months                                                                                                                   |
+| *shares_outstanding*                  | number | Refers for the shares outstanding currently held by all its shareholders                                                                                                           |
+| *float_shares*                        | number | Refers to floating stock is the number of public shares a company has available for trading on the open market                                                                     |
+| *avg_10_volume*                       | number | Refers to the average 10 days volume                                                                                                                                               |
+| *avg_90_volume*                       | number | Refers to the average 90 days volume                                                                                                                                               |
+| *shares_short*                        | number | Refers to the number of shares that have been shorted                                                                                                                              |
+| *short_ratio*                         | number | Refers to short ratio measure                                                                                                                                                      |
+| *short_percent_of_shares_outstanding* | number | Refers to the number of shorted shares divided by the number of shares outstanding                                                                                                 |
+| *percent_held_by_insiders*            | number | Refers to the percentage of shares held by the company insiders                                                                                                                    |
+| *percent_held_by_institutions*        | number | Refers to the percentage of shares held by the institutions                                                                                                                        |
+| *fifty_two_week_low*                  | number | Refers to the lowest price at which stock traded during a year                                                                                                                     |
+| *fifty_two_week_high*                 | number | Refers to the highest price at which stock traded during a year                                                                                                                    |
+| *fifty_two_week_change*               | number | Refers to the change between lowest and highest prices during a year                                                                                                               |
+| *beta*                                | number | Refers to beta measure relative to the primary benchmark (index) of the country                                                                                                    |
+| *day_50_ma*                           | number | Refers to the 50-day simple moving average                                                                                                                                         |
+| *day_200_ma*                          | number | Refers to the 200-day simple moving average                                                                                                                                        |
+| *forward_annual_dividend_rate*        | number | Refers to the forward dividend yield estimation in the currency of instrument                                                                                                      |
+| *forward_annual_dividend_yield*       | number | Refers to the forward dividend yield percentage relative to stock price                                                                                                            |
+| *trailing_annual_dividend_rate*       | number | Refers to the trailing dividend yield rate in the currency of instrument over the last 12 months                                                                                   |
+| *trailing_annual_dividend_yield*      | number | Refers to the trailing dividend yield percentage relative to stock price                                                                                                           |
+| *5_year_average_dividend_yield*       | number | Refers to the average 5 years dividend yield                                                                                                                                       |
+| *payout_ratio*                        | number | Refers to payout ratio, showing the proportion of earnings a company pays its shareholders in the form of dividends                                                                |
+| *dividend_frequency*                  | string | Refers to how often a stock or fund pays dividends                                                                                                                                 |
+| *dividend_date*                       | number | Refers to the last dividend payout date                                                                                                                                            |
+| *ex_dividend_date*                    | number | Refers to the last ex-dividend payout date                                                                                                                                         |
+| *last_split_factor*                   | number | Specification of the last split event                                                                                                                                              |
+| *last_split_date*                     | number | Refers for the last split date                                                                                                                                                     |
+
+*** JSON request example
+:PROPERTIES:
+:CUSTOM_ID: json-request-example-10
+:END:
+[[https://api.twelvedata.com/statistics?symbol=AAPL&apikey=demo&source=docs][=https://api.twelvedata.com/statistics?symbol=AAPL&apikey=demo=]]
+
+* Advanced
+:PROPERTIES:
+:CUSTOM_ID: advanced
+:END:
+** Complex DataUseful
+:PROPERTIES:
+:CUSTOM_ID: complex-data
+:END:
+With this endpoint, you may construct a complex request across multiple
+instruments, intervals, and data methods at the same time. Only *JSON
+POST* requests are accepted. The number of simultaneous requests is only
+limited according to your plan.
+
+The content structure consists of 2 main parts. The first one are the
+general parameters that apply to all listed methods by default. The
+second one are the methods objects.
+
+- Common parameters are =intervals=, =outputsize=, etc.
+- General parameters are: =symbols=(required), =apikey=(optional),
+  common parameters, and =methods= array (required).
+- Method could be either a string with the name of endpoint (as with a
+  single API call) or an object. The object takes =name=(required) and
+  optional common parameters. Take note that method parameters are given
+  higher priority, over general ones in the case of overlapping.
+
+#+begin_quote
+HTTP request example
+#+end_quote
+
+#+begin_src highlight :style
+https://api.twelvedata.com/complex_data?apikey=your_api_key
+--header "Content-Type: application/json" \
+--request POST \
+--data '{
+    "symbols": ["AAPL", "MSFT", "GOOG"],
+    "intervals": ["5min", "1day"],
+    "outputsize": 25,
+    "methods": [
+        "time_series",
+        {
+            "name": "ema",
+            "time_period": 12
+        },
+        "quote",
+        {
+            "name": "adx",
+            "order": "ASC"
+        }
+    ]
+}'
+#+end_src
+
+#+begin_quote
+This request will return JSON with the following structure
+#+end_quote
+
+#+begin_src highlight
+{
+  "data": [
+    {"meta": {"symbol" : "AAPL", "interval": "5min", ...}, "values": [...], "status": "ok"},
+    {"meta": {"symbol" : "AAPL", "interval": "1day", ...}, "values": [...], "status": "ok"},
+    {"meta": {"symbol" : "MSFT", "interval": "5min", ...}, "values": [...], "status": "ok"},
+    {"meta": {"symbol" : "MSFT", "interval": "1day", ...}, "values": [...], "status": "ok"},
+    {"meta": {"symbol" : "GOOG", "interval": "5min", ...}, "values": [...], "status": "ok"},
+    ...
+    {"meta": {"symbol" : "GOOG", "interval": "1day", ...}, "values": [...], "status": "ok"}
+  ],
+  "status": "ok"
+}
+#+end_src
+
+#+begin_quote
+Example of error in the one of the responses
+#+end_quote
+
+#+begin_src highlight
+{
+  "data": [
+    {"code": 400, "message": "**symbol** not found...", "meta":  {"symbol" : "...", "interval": "..", "exchange": "..."}, "status": "error"},
+    ...
+    {"meta": {"symbol" : "...", "interval": "...", ...}, "values": [...], "status": "ok"}
+  ],
+  "status": "ok"
+}
+#+end_src
+
+*** POST route
+:PROPERTIES:
+:CUSTOM_ID: post-route
+:END:
+=/complex_data=
+
+*** API credits
+:PROPERTIES:
+:CUSTOM_ID: api-credits
+:END:
+=1= per returned symbol object
+
+*** Common Parameters
+:PROPERTIES:
+:CUSTOM_ID: common-parameters
+:END:
+| Parameter      | Details                                                                                                      |
+|----------------+--------------------------------------------------------------------------------------------------------------|
+| *intervals*\\  | • Array of intervals: =1min=, =5min=, =15min=, =30min=, =45min=, =1h=, =2h=, =4h=, =1day=, =1week=, =1month= |
+| array          |                                                                                                              |
+| *outputsize*\\ | • Number of data points to retrieve\\                                                                        |
+| int            | • Default =30=                                                                                               |
+| *start_date*\\ | • Format =2006-01-02= or =2006-01-02 15:04:05=\\                                                             |
+| string         | • If timezone is given then, start_date will be used in the specified location                               |
+| *end_date*\\   | • Format =2006-01-02= or =2006-01-02 15:04:05=\\                                                             |
+| string         | • If timezone is given then, end_date will be used in the specified location                                 |
+| *dp*\\         | • Number of decimal places for floating values\\                                                             |
+| int            | • Should be in range [0,11] inclusive. Default =5=                                                           |
+| *order*\\      | • Sorting order of the output series\\                                                                       |
+| string         | • Supports: =ASC=, =DESC=; Default =DESC=                                                                    |
+| *timezone*\\   | • Timezone at which output datetime will be displayed\\                                                      |
+| string         | • Supports: =Exchange=, =UTC= or timezone according to IANA Time Zone Database                               |
+
+*** General Parameters
+:PROPERTIES:
+:CUSTOM_ID: general-parameters
+:END:
+| Parameter           | Details                                                                                                                                         |
+|---------------------+-------------------------------------------------------------------------------------------------------------------------------------------------|
+| *symbols*\\         | • Array of symbols\\                                                                                                                            |
+| array               | • Format: =symbol:exchange:country=, where =exchange= and =country= are optional\\                                                              |
+|                     | • Batch listing is not supported                                                                                                                |
+| *apikey*\\          | • Required parameter\\                                                                                                                          |
+| string              | • Your personal API key, which you can obtain for free [[https://twelvedata.com/pricing][here]]\\                                               |
+|                     | • Type =string=                                                                                                                                 |
+| *methods*\\         | • Accepts: =time_series=, =quote=, =price= or any of the technical indicators.\\                                                                |
+| string or object    | • Could be either a string with method name, then default parameters are taken. Alternatively, with object you might specify custom parameters. |
+| *common parameters* | • Any of the parameters listed above                                                                                                            |
+
+*** Method Parameters
+:PROPERTIES:
+:CUSTOM_ID: method-parameters
+:END:
+| Parameter           | Details                              |
+|---------------------+--------------------------------------|
+| *name*\\            | • Name of endpoint                   |
+| string or object    |                                      |
+| *common parameters* | • Any of the parameters listed above |
+
+*** Response
+:PROPERTIES:
+:CUSTOM_ID: response
+:END:
+The successful response body contains =data= array and =status=ok=. The
+array has the same format as the single API call, except when the error
+occurs where the additional meta-object is included.
+
+** API Usage
+:PROPERTIES:
+:CUSTOM_ID: api-usage
+:END:
+This endpoint will provide information on the current usage of Twelve
+Data API.
+
+#+begin_quote
+HTTP request example
+#+end_quote
+
+#+begin_src highlight :style
+https://api.twelvedata.com/api_usage?apikey=your_api_key
+#+end_src
+
+#+begin_quote
+This request will return JSON with the following structure
+#+end_quote
+
+#+begin_src highlight
+{
+  "timestamp": "2020-03-16 09:05:16",
+  "current_usage": 4003,
+  "plan_limit": 4181
+}
+#+end_src
+
+*** HTTP route
+:PROPERTIES:
+:CUSTOM_ID: http-route
+:END:
+[[https://api.twelvedata.com/api_usage?apikey=your_api_key&source=docs][=/api_usage=]]
+
+*** API credits
+:PROPERTIES:
+:CUSTOM_ID: api-credits-2
+:END:
+=1= per request
+
+*** API parameters
+:PROPERTIES:
+:CUSTOM_ID: api-parameters
+:END:
+| Parameter   | Details                                                                                           |
+|-------------+---------------------------------------------------------------------------------------------------|
+| *apikey*    | • Required parameter\\                                                                            |
+|             | • Your personal API key, which you can obtain for free [[https://twelvedata.com/pricing][here]]\\ |
+|             | • Type =string=                                                                                   |
+| *format*    | • Parameter is optional\\                                                                         |
+|             | • Value can be =CSV= or =JSON=; Default =JSON=                                                    |
+| *delimiter* | • Parameter is optional\\                                                                         |
+|             | • Specify the delimiter used when downloading the =CSV= file\\                                    |
+|             | • Default semicolon =;=                                                                           |
+
+*** Response
+:PROPERTIES:
+:CUSTOM_ID: response-2
+:END:
+| Key             | Description                                                     |
+|-----------------+-----------------------------------------------------------------|
+| *timestamp*     | current timestamp in UTC timezone                               |
+| *current_usage* | number of requests made in last minute                          |
+| *plan_limit*    | your personal API limit (requests/minute) depending on the plan |
+
+*** JSON request example
+:PROPERTIES:
+:CUSTOM_ID: json-request-example
+:END:
+[[https://api.twelvedata.com/api_usage?apikey=your_api_key&source=docs][=https://api.twelvedata.com/api_usage?apikey=your_api_key=]]
+
+*** Downloadable CSV example
+:PROPERTIES:
+:CUSTOM_ID: downloadable-csv-example
+:END:
+[[https://api.twelvedata.com/api_usage?apikey=your_api_key&format=CSV&source=docs][=https://api.twelvedata.com/api_usage?apikey=your_api_key&format=CSV=]]
