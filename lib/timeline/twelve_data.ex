@@ -29,6 +29,7 @@ defmodule Timeline.TwelveData do
   end
 
   def fetch_time_series(symbol, api_key, interval \\ @default_interval) do
+    Logger.info("Fetching time series for #{inspect(symbol)} with URL: #{@base_url}#{endpoint}")
     endpoint = "/time_series?symbol=#{symbol}&interval=#{interval}&apikey=#{api_key}"
 
     case get_and_cache(endpoint) do
