@@ -30,7 +30,20 @@ defmodule Timeline.TwelveData do
 
   def fetch_time_series(symbol, api_key, interval \\ @default_interval) do
     endpoint = "/time_series?symbol=#{symbol}&interval=#{interval}&apikey=#{api_key}"
-    get_and_cache(endpoint)
+
+    case get_and_cache(endpoint) do
+      {:error, _reason} ->
+        []
+
+      raw_body when is_binary(raw_body) ->
+        case Jason.decode(raw_body) do
+          {:ok, %{"values" => values}} ->
+            values
+
+          _ ->
+            []
+        end
+    end
   end
 
   def fetch_logo(symbol, api_key) do
