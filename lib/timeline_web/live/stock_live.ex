@@ -22,6 +22,7 @@ defmodule TimelineWeb.StockLive do
     paged_stocks = Enum.slice(stocks, offset, 20)
     symbol = Map.get(params, "symbol")
     time_series = if symbol, do: TwelveData.fetch_time_series(symbol, api_key), else: []
+    Logger.info("[StockLive] Time series for #{inspect(symbol)}: #{inspect(time_series)}")
 
     {:noreply,
      socket
