@@ -1731,7 +1731,9 @@ defmodule TimelineWeb.StockLive do
     {:noreply,
      socket
      |> assign(:api_key, api_key)
-     |> assign(:stocks, stocks)
+     |> assign(:stocks, paged_stocks)
+     |> assign(:page, page)
+     |> assign(:total_pages, total_pages)
      |> assign(:symbol, symbol)
      |> assign(:time_series, time_series)}
   end
@@ -1909,16 +1911,30 @@ defmodule TimelineWeb.StockLive do
     <%= if @symbol do %>
       <div class="time-series">
         <h3>Time Series for <%= @symbol %></h3>
-        <%= for data <- @time_series do %>
-          <div class="time-series-item">
-            <p>Date: <%= data["datetime"] %></p>
-            <p>Open: <%= data["open"] %></p>
-            <p>High: <%= data["high"] %></p>
-            <p>Low: <%= data["low"] %></p>
-            <p>Close: <%= data["close"] %></p>
-            <p>Volume: <%= data["volume"] %></p>
-          </div>
-        <% end %>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Open</th>
+              <th>High</th>
+              <th>Low</th>
+              <th>Close</th>
+              <th>Volume</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%= for data <- @time_series do %>
+              <tr>
+                <td><%= data["datetime"] %></td>
+                <td><%= data["open"] %></td>
+                <td><%= data["high"] %></td>
+                <td><%= data["low"] %></td>
+                <td><%= data["close"] %></td>
+                <td><%= data["volume"] %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
       </div>
     <% else %>
       <p>Select a stock to see its time series data.</p>
