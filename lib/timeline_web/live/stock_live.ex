@@ -1,4 +1,5 @@
 defmodule TimelineWeb.StockLive do
+  require Logger
   use TimelineWeb, :live_view
   alias Timeline.TwelveData
 
