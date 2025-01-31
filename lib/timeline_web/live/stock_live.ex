@@ -11,7 +11,6 @@ defmodule TimelineWeb.StockLive do
   def handle_params(%{"api_key" => api_key} = params, _uri, socket) do
     page = Map.get(params, "page", "1") |> String.to_integer()
     stocks = TwelveData.fetch_stocks(api_key)
-    symbol = Map.get(params, "symbol")
 
     total_pages = 
       case length(stocks) do
@@ -58,6 +57,7 @@ defmodule TimelineWeb.StockLive do
         <%= live_patch "Next", to: "/?api_key=#{@api_key}&page=#{@page+1}" %>
       <% end %>
     </div>
+    <%= if @symbol do %>
       <div class="time-series">
         <h3>Time Series for <%= @symbol %></h3>
         <%= for data <- @time_series do %>
