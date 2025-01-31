@@ -91,6 +91,7 @@ defmodule TimelineWeb.StockLive do
           class: "btn btn-small" %>
       <% end %>
     </div>
+    <%= if @symbol do %>
       <div class="time-series">
         <h3>Time Series for <%= @symbol %></h3>
         <table>
