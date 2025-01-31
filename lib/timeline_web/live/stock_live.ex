@@ -9,14 +9,27 @@ defmodule TimelineWeb.StockLive do
 
   @impl true
   def handle_params(%{"api_key" => api_key} = params, _uri, socket) do
+    page = Map.get(params, "page", "1") |> String.to_integer()
     stocks = TwelveData.fetch_stocks(api_key)
+    symbol = Map.get(params, "symbol")
+
+    total_pages = 
+      case length(stocks) do
+        0 -> 1
+        count -> div(count + 19, 20)  # integer division, rounding up
+      end
+
+    offset = (page - 1) * 20
+    paged_stocks = Enum.slice(stocks, offset, 20)
     symbol = Map.get(params, "symbol")
     time_series = if symbol, do: TwelveData.fetch_time_series(symbol, api_key), else: []
 
     {:noreply,
      socket
      |> assign(:api_key, api_key)
-     |> assign(:stocks, stocks)
+     |> assign(:stocks, paged_stocks)
+     |> assign(:page, page)
+     |> assign(:total_pages, total_pages)
      |> assign(:symbol, symbol)
      |> assign(:time_series, time_series)}
   end
@@ -34,7 +47,17 @@ defmodule TimelineWeb.StockLive do
       <% end %>
     </div>
 
-    <%= if @symbol do %>
+    <div class="pagination">
+      <%= if @page > 1 do %>
+        <%= live_patch "Previous", to: "/?api_key=#{@api_key}&page=#{@page-1}" %>
+      <% end %>
+      
+      <span>Page <%= @page %> of <%= @total_pages %></span>
+      
+      <%= if @page < @total_pages do %>
+        <%= live_patch "Next", to: "/?api_key=#{@api_key}&page=#{@page+1}" %>
+      <% end %>
+    </div>
       <div class="time-series">
         <h3>Time Series for <%= @symbol %></h3>
         <%= for data <- @time_series do %>
