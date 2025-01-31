@@ -38,6 +38,7 @@ defmodule TimelineWeb.StockLive do
   @impl true
   def render(assigns) do
     ~L"""
+    <h2>Available Stocks</h2>
     <div class="stock-grid">
       <%= for stock <- @stocks do %>
         <div class="stock-item">
@@ -50,28 +51,46 @@ defmodule TimelineWeb.StockLive do
 
     <div class="pagination">
       <%= if @page > 1 do %>
-        <%= live_patch "Previous", to: "/?api_key=#{@api_key}&page=#{@page-1}" %>
+        <%= live_patch "← Prev",
+          to: "/?api_key=#{@api_key}&page=#{@page-1}",
+          class: "btn btn-small" %>
       <% end %>
-      
+
       <span>Page <%= @page %> of <%= @total_pages %></span>
-      
+
       <%= if @page < @total_pages do %>
-        <%= live_patch "Next", to: "/?api_key=#{@api_key}&page=#{@page+1}" %>
+        <%= live_patch "Next →",
+          to: "/?api_key=#{@api_key}&page=#{@page+1}",
+          class: "btn btn-small" %>
       <% end %>
     </div>
     <%= if @symbol do %>
       <div class="time-series">
         <h3>Time Series for <%= @symbol %></h3>
-        <%= for data <- @time_series do %>
-          <div class="time-series-item">
-            <p>Date: <%= data["datetime"] %></p>
-            <p>Open: <%= data["open"] %></p>
-            <p>High: <%= data["high"] %></p>
-            <p>Low: <%= data["low"] %></p>
-            <p>Close: <%= data["close"] %></p>
-            <p>Volume: <%= data["volume"] %></p>
-          </div>
-        <% end %>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Open</th>
+              <th>High</th>
+              <th>Low</th>
+              <th>Close</th>
+              <th>Volume</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%= for data <- @time_series do %>
+              <tr>
+                <td><%= data["datetime"] %></td>
+                <td><%= data["open"] %></td>
+                <td><%= data["high"] %></td>
+                <td><%= data["low"] %></td>
+                <td><%= data["close"] %></td>
+                <td><%= data["volume"] %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
       </div>
     <% else %>
       <p>Select a stock to see its time series data.</p>
