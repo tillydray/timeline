@@ -16,3 +16,6 @@ test:
 
 clean:
 	mix clean
+
+serve:
+	mix phx.server && open http://localhost:4000
