@@ -50,7 +50,6 @@ defmodule TimelineWeb.StockLive do
   def render(assigns) do
     ~L"""
     <h2>Available Stocks</h2>
-    <h2>Available Stocks</h2>
     <div class="stock-grid">
       <%= for stock <- @stocks do %>
         <div class="stock-item">
