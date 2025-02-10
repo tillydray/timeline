@@ -11,22 +11,13 @@ defmodule TimelineWeb.StockLive do
   @impl true
   def handle_params(%{"api_key" => api_key} = params, _uri, socket) do
     page = Map.get(params, "page", "1") |> String.to_integer()
-    page = Map.get(params, "page", "1") |> String.to_integer()
     stocks = TwelveData.fetch_stocks(api_key)
 
-    total_pages = 
+    total_pages =
       case length(stocks) do
         0 -> 1
-        count -> div(count + 19, 20)  # integer division, rounding up
-      end
-
-    offset = (page - 1) * 20
-    paged_stocks = Enum.slice(stocks, offset, 20)
-
-    total_pages = 
-      case length(stocks) do
-        0 -> 1
-        count -> div(count + 19, 20)  # integer division, rounding up
+        # integer division, rounding up
+        count -> div(count + 19, 20)
       end
 
     offset = (page - 1) * 20
