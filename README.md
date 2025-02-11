@@ -6,6 +6,17 @@ To run the project locally, follow these steps:
 2. Set up the database by running `make setup_db` (this will create the database and run the migrations).
 3. Start the Phoenix server by running `make serve` (or use `iex -S mix phx.server` for an interactive shell).
 
+## Built with Aider.chat
+
+https://aider.chat is the only AI coding assistant that I've found actually
+saves me some amount of time. I started using it shortly before starting this
+coding challenge so I ended up using it a lot with this project to get a better
+feel for the tool.
+
+I am happy to walk through the code and explain everything, or whatever test you
+want me to do to prove I understand what's happening here, and I didn't just
+blindly do what the AI tool told me.
+
 ## Goals
 1. Fetch stock data from the Twelve Data API. You will need to:
    - First fetch the list of available stocks using the `/stocks` endpoint
