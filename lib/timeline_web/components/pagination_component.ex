@@ -10,7 +10,7 @@ defmodule TimelineWeb.Components.PaginationComponent do
           class: "px-4 py-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-600" %>
       <% end %>
 
-      <span>Page <%= @page %> of <%= @total_pages %></span>
+      <span style="padding: 0 1rem;">Page <%= @page %> of <%= @total_pages %></span>
 
       <%= if @page < @total_pages do %>
         <%= live_patch "Next →",
