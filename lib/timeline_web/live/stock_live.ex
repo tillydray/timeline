@@ -41,6 +41,7 @@ defmodule TimelineWeb.StockLive do
   def render(assigns) do
     ~L"""
     <h2 class="text-2xl font-semibold mb-4">Available Stocks</h2>
+    <p>Select a stock to see its time series data.</p>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 p-4">
       <%= for stock <- @stocks do %>
         <div class="bg-white rounded-lg p-4 shadow hover:shadow-md transition-shadow">
@@ -96,7 +97,6 @@ defmodule TimelineWeb.StockLive do
         </table>
       </div>
     <% else %>
-      <p>Select a stock to see its time series data.</p>
     <% end %>
     """
   end
