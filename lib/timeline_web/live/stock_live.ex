@@ -67,21 +67,6 @@ defmodule TimelineWeb.StockLive do
           class: "px-4 py-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-600" %>
       <% end %>
     </div>
-    <div class="pagination">
-      <%= if @page > 1 do %>
-        <%= live_patch "← Prev",
-          to: "/?api_key=#{@api_key}&page=#{@page-1}",
-          class: "px-4 py-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-600" %>
-      <% end %>
-
-      <span>Page <%= @page %> of <%= @total_pages %></span>
-
-      <%= if @page < @total_pages do %>
-        <%= live_patch "Next →",
-          to: "/?api_key=#{@api_key}&page=#{@page+1}",
-          class: "px-4 py-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-600" %>
-      <% end %>
-    </div>
     <%= if @symbol do %>
       <div class="time-series">
         <h3>Time Series for <%= @symbol %></h3>
