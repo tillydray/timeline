@@ -1,57 +1,4 @@
-# Timeline Take Home Project
-
-> **Note** This is designed to be done with Elixir specifically, but if you have
->talked about using a different programming language that you are more
->comfortable, stick with that.
-
-## Prerequisites
-
-You will need the following installed on your machine
-
-- Elixir. Feel free to use any Elixir/OTP version. We recommend using
-[asdf](https://asdf-vm.com/), in which case you can use the `.tool-versions`
-file in this repository, to setup your development environment.
-
-- PostgreSQL - You will need a local database, either PostgreSQL on your
-machine,  or have Docker installed so we can create a PostgreSQL container. If
-you want to  use docker, make sure it is installed --
-https://docs.docker.com/get-docker/
-
-- Review the docs of the Twelvedata API https://twelvedata.com/docs
-
-- You will have to signup for a free account to get an API key. Go to
-https://twelvedata.com/pricing and sign up for the free Basic plan to obtain
-your API key.
-
-- Please have your API key copied and ready to go. You can find your API key in
-your account dashboard after signing up. The API key will be used to
-authenticate your requests to the Twelve Data API.
-
-
-## Assignment
-
-This assignment consists of 8 different steps, that are functionally related,
-and build upon each other.
-
-### What is and isn't expected
-
-- We don't expect you to complete all the steps.  The main goal of the
-assignment is to have some code we can talk about in our next call.  We don't
-want to use more of your free time than absolutely necessary.  The assignment is
-intended to take **up to 5 hours**, but not more.
-
-- You do not need to do the steps in the exact order they are listed.
-
-- The application should work out of the box.
-
-- We expect you to do **local refactorings and small code improvements** as you
-  see fit.
-
-- Last but not least we expect you to **use Git** during the assignment.  Put
-your changes into appropriately sized commits, just as if you were working in a
-collaborative environment. We will review these commits and  changes as part of
-the pair review session. 
-
+## Running
 
 ## Goals
 1. Fetch stock data from the Twelve Data API. You will need to:
@@ -91,16 +38,3 @@ the pair review session.
    the information you  want to display here in any way you want.
 
 8. What are some ways that we can improve the current code we just wrote?
-
-## Handing in the solution
-
-- Once you are done, ensure you committed and pushed all your changes, and then
-  you can send your solution directly by email to
-  [nacho@timeline.co](mailto:nacho@timeline.co?subject=Elixir%20Assignment), for
-  example, as a zip archive. Please make sure the solution contains the entire
-  project, including the `.git` directory, so we can have a look at your
-  commits.
-
-- [Schedule a follow up review
-  call](https://calendly.com/d/cngq-hp9-fjn/technical-interview) to go over your
-  final implementation.a
