@@ -1,24 +1,22 @@
 .PHONY: all compile build migrate test clean
 
-all: compile build
+install_deps:
+	mix deps.get
+
+setup_db:
+	mix ecto.setup
+
+serve:
+	mix phx.server && open http://localhost:4000
 
 compile:
 	mix compile
 
-build:
-	mix release
-
 migrate:
 	mix ecto.migrate
 
-test:
-	mix test
-
 clean:
 	mix clean
-
-serve:
-	mix phx.server && open http://localhost:4000
 
 bust_cache:
 	rm ./_build/dev/lib/timeline/priv/timeline_cache.dets

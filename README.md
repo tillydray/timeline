@@ -1,5 +1,11 @@
 ## Running
 
+To run the project locally, follow these steps:
+
+1. Install dependencies by running `make install_deps` in the project root.
+2. Set up the database by running `make setup_db` (this will create the database and run the migrations).
+3. Start the Phoenix server by running `make serve` (or use `iex -S mix phx.server` for an interactive shell).
+
 ## Goals
 1. Fetch stock data from the Twelve Data API. You will need to:
    - First fetch the list of available stocks using the `/stocks` endpoint
