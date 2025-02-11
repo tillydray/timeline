@@ -46,12 +46,12 @@ defmodule TimelineWeb.StockLive do
     <.pagination page={@page} total_pages={@total_pages} api_key={@api_key} />
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 p-4">
       <%= for stock <- @stocks do %>
-        <div class="bg-white rounded-md p-4 shadow hover:shadow-lg transition-shadow">
+        <button class="bg-white rounded-md p-4 shadow hover:shadow-lg transition-shadow">
           <!-- Using a string path instead of Routes.live_path() -->
           <%= live_patch "#{stock["name"]} (#{stock["symbol"]})",
                 to: "/?api_key=#{@api_key}&symbol=#{stock["symbol"]}",
                 class: "text-blue-500 hover:underline" %>
-        </div>
+        </button>
       <% end %>
     </div>
 
