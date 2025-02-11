@@ -23,4 +23,4 @@ config :timeline, ecto_repos: [Timeline.Repo]
 
 config :phoenix, :json_library, Jason
 
-config :logger, level: :info
+config :logger, level: :debug
