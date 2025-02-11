@@ -42,7 +42,7 @@ defmodule TimelineWeb.StockLive do
     ~L"""
     <h2 class="text-2xl font-semibold mb-4">Available Stocks</h2>
     <p>Select a stock to see its time series data.</p>
-    <div class="pagination">
+    <div class="pagination flex justify-end">
       <%= if @page > 1 do %>
         <%= live_patch "← Prev",
           to: "/?api_key=#{@api_key}&page=#{@page-1}",
@@ -68,7 +68,7 @@ defmodule TimelineWeb.StockLive do
       <% end %>
     </div>
 
-    <div class="pagination">
+    <div class="pagination flex justify-end">
       <%= if @page > 1 do %>
         <%= live_patch "← Prev",
           to: "/?api_key=#{@api_key}&page=#{@page-1}",
