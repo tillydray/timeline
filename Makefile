@@ -19,3 +19,6 @@ clean:
 
 serve:
 	mix phx.server && open http://localhost:4000
+
+bust_cache:
+	rm ./_build/dev/lib/timeline/priv/timeline_cache.dets
