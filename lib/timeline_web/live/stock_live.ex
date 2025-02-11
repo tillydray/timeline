@@ -42,9 +42,24 @@ defmodule TimelineWeb.StockLive do
     ~L"""
     <h2 class="text-2xl font-semibold mb-4">Available Stocks</h2>
     <p>Select a stock to see its time series data.</p>
+    <div class="pagination">
+      <%= if @page > 1 do %>
+        <%= live_patch "← Prev",
+          to: "/?api_key=#{@api_key}&page=#{@page-1}",
+          class: "px-4 py-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-600" %>
+      <% end %>
+
+      <span>Page <%= @page %> of <%= @total_pages %></span>
+
+      <%= if @page < @total_pages do %>
+        <%= live_patch "Next →",
+          to: "/?api_key=#{@api_key}&page=#{@page+1}",
+          class: "px-4 py-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-600" %>
+      <% end %>
+    </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 p-4">
       <%= for stock <- @stocks do %>
-        <div class="bg-white rounded-lg p-4 shadow hover:shadow-md transition-shadow">
+        <div class="bg-white rounded-md p-4 shadow hover:shadow-lg transition-shadow">
           <!-- Using a string path instead of Routes.live_path() -->
           <%= live_patch "#{stock["name"]} (#{stock["symbol"]})",
                 to: "/?api_key=#{@api_key}&symbol=#{stock["symbol"]}",
