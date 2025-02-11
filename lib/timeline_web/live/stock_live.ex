@@ -24,6 +24,12 @@ defmodule TimelineWeb.StockLive do
 
     offset = (page - 1) * 20
     paged_stocks = Enum.slice(stocks, offset, 20)
+    paged_stocks = Enum.map(paged_stocks, fn stock ->
+      case TwelveData.fetch_logo(stock["symbol"], api_key) do
+        %{"url" => url} -> Map.put(stock, "logo", url)
+        _ -> stock
+      end
+    end)
     symbol = Map.get(params, "symbol")
     time_series = if symbol, do: TwelveData.fetch_time_series(symbol, api_key), else: []
     Logger.info("[StockLive] Time series for #{inspect(symbol)}: #{inspect(time_series)}")
@@ -47,9 +53,11 @@ defmodule TimelineWeb.StockLive do
     <.pagination page={@page} total_pages={@total_pages} api_key={@api_key} />
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 p-4">
       <%= for stock <- @stocks do %>
-        <%= link "#{stock["name"]} (#{stock["symbol"]})",
-              to: "/stock?api_key=#{@api_key}&symbol=#{stock["symbol"]}",
-              class: "bg-white rounded-md p-4 shadow hover:shadow-lg transition-shadow text-blue-600 hover:underline block" %>
+        <%= link to: "/stock?api_key=" <> @api_key <> "&symbol=" <> stock["symbol"],
+              class: "bg-white rounded-md p-4 shadow hover:shadow-lg transition-shadow text-blue-600 hover:underline block" do %>
+          <img src={stock["logo"]} alt={stock["name"] <> " logo"} class="w-6 h-6 inline-block mr-2" />
+          <span><%= stock["name"] %> (<%= stock["symbol"] %>)</span>
+        <% end %>
       <% end %>
     </div>
 
