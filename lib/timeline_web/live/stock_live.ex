@@ -26,8 +26,12 @@ defmodule TimelineWeb.StockLive do
     paged_stocks = Enum.slice(stocks, offset, 20)
     paged_stocks = Enum.map(paged_stocks, fn stock ->
       case TwelveData.fetch_logo(stock["symbol"], api_key) do
-        %{"url" => url} -> Map.put(stock, "logo", url)
-        _ -> stock
+        %{"url" => url} ->
+          Map.put(stock, "logo", url)
+        %{"logo_base" => logo_base} ->
+          Map.put(stock, "logo", logo_base)
+        _ ->
+          stock
       end
     end)
     symbol = Map.get(params, "symbol")
