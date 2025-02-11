@@ -50,7 +50,7 @@ defmodule TimelineWeb.StockLive do
           <!-- Using a string path instead of Routes.live_path() -->
           <%= live_patch "#{stock["name"]} (#{stock["symbol"]})",
                 to: "/?api_key=#{@api_key}&symbol=#{stock["symbol"]}",
-                class: "text-blue-500 hover:underline" %>
+                class: "text-blue-600 hover:underline" %>
         </button>
       <% end %>
     </div>
