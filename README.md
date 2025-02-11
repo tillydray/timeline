@@ -44,3 +44,9 @@ To run the project locally, follow these steps:
    the information you  want to display here in any way you want.
 
 8. What are some ways that we can improve the current code we just wrote?
+
+## TODOs
+- add tests
+- ensure logos load when on the proper tier
+- add stock statistics
+- add more stock details
