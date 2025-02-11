@@ -2,6 +2,7 @@ defmodule TimelineWeb.StockLive do
   require Logger
   use TimelineWeb, :live_view
   alias Timeline.TwelveData
+  import Phoenix.HTML.Link
   import TimelineWeb.Components.PaginationComponent
 
   @impl true
@@ -48,44 +49,14 @@ defmodule TimelineWeb.StockLive do
       <%= for stock <- @stocks do %>
         <button class="bg-white rounded-md p-4 shadow hover:shadow-lg transition-shadow">
           <!-- Using a string path instead of Routes.live_path() -->
-          <%= live_patch "#{stock["name"]} (#{stock["symbol"]})",
-                to: "/?api_key=#{@api_key}&symbol=#{stock["symbol"]}",
+          <%= link "#{stock["name"]} (#{stock["symbol"]})",
+                to: "/stock?api_key=#{@api_key}&symbol=#{stock["symbol"]}",
                 class: "text-blue-600 hover:underline" %>
         </button>
       <% end %>
     </div>
 
     <.pagination page={@page} total_pages={@total_pages} api_key={@api_key} />
-    <%= if @symbol do %>
-      <div class="time-series">
-        <h3>Time Series for <%= @symbol %></h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Open</th>
-              <th>High</th>
-              <th>Low</th>
-              <th>Close</th>
-              <th>Volume</th>
-            </tr>
-          </thead>
-          <tbody>
-            <%= for data <- @time_series do %>
-              <tr>
-                <td><%= data["datetime"] %></td>
-                <td><%= data["open"] %></td>
-                <td><%= data["high"] %></td>
-                <td><%= data["low"] %></td>
-                <td><%= data["close"] %></td>
-                <td><%= data["volume"] %></td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-    <% else %>
-    <% end %>
     """
   end
 end

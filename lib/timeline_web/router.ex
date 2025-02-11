@@ -14,5 +14,6 @@ defmodule TimelineWeb.Router do
     pipe_through(:browser)
 
     live("/", StockLive, :index)
+    live("/stock", StockDetailsLive, :index)
   end
 end
